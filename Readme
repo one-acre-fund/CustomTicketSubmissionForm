@@ -1,0 +1,44 @@
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+| This outlines how to create a custom ticket form that lets users submit support requests from your website.|
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+        *   The plan is to build a ticket form that lets end users submit tickets from one or more pages on our website.
+            I have broken down the project into three parts:
+
+            1. Build an HTML form that lets end users submit tickets
+            2. Develop a component that creates tickets using the Zendesk API
+            3. Integrate the ticket form in one or more of your website's pages
+
+        ITEM 1. Create the ticket form
+        The ticket form should perform the following tasks:
+
+            1. Let the user enter a subject and description of the problem
+
+            2. Ask for the user's email address so your support team can reply with a solution to their problem
+
+            3. Submit the form data to a web application that you'll build later to create tickets with the Zendesk API
+
+        ITEM 2. Ask for the user's email address
+        * WE need the user's email address so that your support team can contact the person with a solution to their problem. 
+        * We also need it to authenticate calls to the Requests API.
+
+        * Important: The email has to be verified to reduce the potential
+        for spam tickets and ensure users are who they say they are. See Verifying a user's email address
+
+        * The end user only needs to enter their email address once. After confirming that the email is registered in Zendesk Support, 
+        we  save it in a cookie so the user doesn't have to enter it again.
+
+
+        ITEM 3: Create the tickets
+        After completing the form, we need a separate component to perform the following tasks:
+
+            1. Create a ticket in Zendesk Support after the end user submits the ticket form
+
+            2. Notify the end user if something went wrong with the request
+
+            3. Reuse the end user's email address to authenticate future requests
+
+        * A server-side web application is required to perform these tasks. 
+        Security features built into browsers prevent client-side JavaScript from accessing the Zendesk API.
+
+        * We are going to build the web application using a micro web framework called Bottle.
