@@ -1,15 +1,35 @@
 import json
 import requests
-from bottle import Bottle, route, template, run, static_file, request, response
-from bottle.ext import auth
+from bottle import Bottle, template, run, static_file, request, response
+from BottleOIDC import BottleOIDC
+from BottleSessions import BottleSessions
 
-@app.route('/login')
-def login(auth):
-    return auth.redirect(request.environ)
+app = Bottle()
 
-@login(auth)
-@route('/create_ticket', method=['GET', 'POST'])
+# Move oidc_config to environment variables   
+oidc_config = {
+  "discovery_url": "https://accounts.qa.oneacrefund.org/auth/realms/OneAcreFund/.well-known/openid-configuration",
+  "client_id": "zendesk_ticket",
+  "client_scope": ["openid", "email", "profile"],
+  "client_secret": "fabd1047-8098-4e27-8e99-914ee2a426a6"
+}
+
+auth = BottleOIDC(app, config=oidc_config)
+BottleSessions(app)
+
+@app.route('/')
+@auth.require_login
+def login():
+    return auth.initiate_login('/create_ticket')
+
+@app.route('/create_ticket', method=['GET', 'POST'])
 def handle_form():
+    if auth.is_authenticated:
+        return form()
+    else:
+        return login()
+
+def form():
     if 'verified_email' in request.cookies:
         ask_email = False
     else:
@@ -33,7 +53,8 @@ def handle_form():
         ticket = json.dumps(data)
         # Make the API request
         user = email + '/token'
-            
+
+        # Move api_token and url to environment variables   
         api_token = 'mUdV0u17U5YaQ5kS09feZiUm9YyNGM3SKnf4mpSp'
         url = 'https://oneacrefundglobalhr.zendesk.com/api/v2/requests.json'
         headers = {'content-type': 'application/json'}
@@ -55,15 +76,10 @@ def handle_form():
 
     return template('ticket_form', feedback=status, no_email=ask_email)
 
-@route('/css/<filename>')
+@app.route('/css/<filename>')
 def send_css(filename):
     return static_file(filename, root='static/css')
 
-app = Bottle()
-
-## add auth plugin for openid here
-
+## Use localhost if running locally
+## run(app=app, host='localhost',  debug=True, reloader=True)
 run(app=app, host='0.0.0.0',  debug=True, reloader=True)
-
-
-

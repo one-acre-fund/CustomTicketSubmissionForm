@@ -8,11 +8,10 @@ WORKDIR /app
 COPY . .
 
 # execute 
-RUN pip3 install --trusted-host pypi.python.org requests bottle
+RUN pip3 install --trusted-host pypi.python.org requests bottle BottleOIDC BottleSessions
 
 # unblock port 8080 for the Bottle app to run on
 EXPOSE 8080   
 
 # execute 
 CMD ["python", "app.py"]
-
